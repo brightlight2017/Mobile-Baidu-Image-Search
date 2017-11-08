@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <!-- <meta http-equiv="X-UA-Compatible" content="ie=edge"> -->
+    <title>百度图片搜索</title>
+    <style>
+        * {padding: 0;margin: 0;list-style: none;}
+        html,body {width: 100%;}
+        #wrap {
+            width: 10rem;
+            height: auto;
+            background-color: #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            overflow: hidden;
+        }
+        #wrap .search {
+            width: 10rem;
+            height: 3rem;
+            background-color: #4992c3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 3px 8px #222;
+            position: relative;
+        }
+        #wrap .search input {
+            width: 80%;
+            height: 0.8rem;
+            font-size: 0.4rem;
+            border: 0;
+            outline: none;
+            border-radius: 10px;
+            text-indent: 20px;
+        }
+        #wrap .search i {
+            position:absolute;
+            right: 1.2rem;
+            width: 0.5rem;
+            height: 0.5rem;
+            background: url("icons/search.png") center/cover;
+        }
+        #wrap .list {
+            width: 10rem;
+            height: auto;
+            background-color: #fff;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+        #wrap .list div {
+            width: 48%;
+            margin: 1%;
+            float: left;
+            height: auto;
+        }
+       #wrap .list div img {
+           margin: 0.3rem 0;
+           border: 0;
+           display: block;
+           box-shadow: 0 0 8px #000;
+       }
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <div class="search">
+            <input type="text" id="input">
+            <i></i>
+        </div>
+        <div class="list">
+            <div class="left"></div>
+            <div class="right"></div>
+        </div>
+    </div>
+    <script>
+        var oWrap = document.querySelector("#wrap");
+        var oSearch = document.querySelector(".search");
+        var oList = document.querySelector(".list");
+        var oLeft = document.querySelector(".left");
+        var oRight = document.querySelector(".right");
+        var oInput = document.querySelector("#input");
+        var oI = document.querySelector(".search i");
+        var eleW = document.documentElement || document.body;
+        var wH = eleW.clientHeight;
+        var wW = eleW.clientWidth;
+        var sH = oSearch.offsetHeight;
+        oWrap.style.height = wH + "px";
+        oList.style.height = wH-sH + "px";
+        var word = '';
+
+        window.document.documentElement.style.fontSize = wW/10 + "px";
+
+        oInput.onkeypress = function(){
+            if (event.keyCode == 13){
+                search();
+            }
+        }
+        oI.onclick = function(){
+            search();
+        }
+        //进行搜索
+        function search(){
+            word = oInput.value;
+            if(word&&word.length>0){
+                oLeft.innerHTML = '';
+                oRight.innerHTML = '';
+                oInput.value = '';
+                createSctipt();
+            }
+        }
+        //jsonp
+        function createSctipt(){
+            var oScript = document.createElement("script");
+            oScript.src = "http://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&pn=0&rn=30&ie='utf8'&word="+word+"&callback=getEn";
+            document.body.appendChild(oScript);
+        }
+
+        function getEn(res){
+            var imgUrl = res.data;
+            for (var i = 0; i < imgUrl.length-1; i++) {
+                var oImg = document.createElement("img");
+                oImg.src = imgUrl[i].thumbURL;
+                zoom(oImg);
+            }
+        }
+        //调整图片尺寸
+        function zoom(img){
+            var lW = oLeft.offsetWidth;
+            var iW = img.offsetWidth;
+            var iH = img.offsetHeight;
+            var leftH = oLeft.offsetHeight;
+            var rightH = oRight.offsetHeight;
+            var pH = iH/(iW/lW);
+            img.style.width = lW+"px";
+            img.style.height = pH+"px";
+            if(leftH<=rightH){
+                leftH += pH;
+                oLeft.appendChild(img);
+            }else{
+                rightH += pH;
+                oRight.appendChild(img);
+            }
+        }
+    </script>
+</body>
+</html>
